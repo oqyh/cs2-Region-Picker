@@ -13,7 +13,7 @@
 
 # CS2 Region Picker (1.0.0)
 
-Block CS2 matchmaking regions you don't want, straight from a world map. Uses Windows Firewallp
+Block CS2 matchmaking regions you don't want, straight from a world map. Uses Windows Firewall
 
 <img width="800" height="737" alt="CS2RegionPicker" src="https://github.com/user-attachments/assets/87e126b8-f1b8-4511-adae-2afdcfdfbd54" />
 
