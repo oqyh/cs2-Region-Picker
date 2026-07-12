@@ -1,0 +1,624 @@
+<Window x:Class="CS2RegionPicker.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:CS2RegionPicker"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="CS2 Region Picker" Width="900" Height="820" MinWidth="740" MinHeight="640"
+        WindowStartupLocation="CenterScreen"
+        AllowsTransparency="True" WindowStyle="None" Background="Transparent"
+        ResizeMode="CanResizeWithGrip"
+        Icon="app.ico"
+        UseLayoutRounding="True" FontFamily="Segoe UI">
+
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="0" ResizeBorderThickness="7" CornerRadius="0" GlassFrameThickness="0"/>
+    </shell:WindowChrome.WindowChrome>
+
+    <Window.Resources>
+
+        <Style x:Key="BtnPrimary" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource Accent}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13.5"/>
+            <Setter Property="Padding" Value="22,11"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="bd" Property="Background" Value="{DynamicResource AccentHover}"/></Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="bd" Property="Opacity" Value="0.45"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="BtnSec" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource BtnSecBg}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="Padding" Value="14,9"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="bd" Property="Background" Value="{DynamicResource BtnSecHover}"/></Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="bd" Property="Opacity" Value="0.45"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ChromeBtn" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Width" Value="42"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="bd" Property="Background" Value="{DynamicResource BtnSecBg}"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SocialButton" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Width" Value="50"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Margin" Value="7,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="b" CornerRadius="13" Background="{DynamicResource WinBg}"
+                                BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="b" Property="Background" Value="{DynamicResource BtnSecBg}"/>
+                                <Setter TargetName="b" Property="BorderBrush" Value="{DynamicResource Accent}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ScrollThumbStyle" TargetType="Thumb">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="IsTabStop" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Border x:Name="t" CornerRadius="4" Margin="2,2" Background="{DynamicResource ScrollThumb}"/>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="t" Property="Background" Value="{DynamicResource ScrollThumbHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsDragging" Value="True">
+                                <Setter TargetName="t" Property="Background" Value="{DynamicResource ScrollThumbHover}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ScrollNoButton" TargetType="RepeatButton">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="IsTabStop" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RepeatButton"><Border Background="Transparent"/></ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ScrollBar">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Width" Value="10"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Grid Background="Transparent">
+                            <Track x:Name="PART_Track" IsDirectionReversed="True">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Style="{StaticResource ScrollNoButton}" Command="ScrollBar.PageUpCommand"/>
+                                </Track.DecreaseRepeatButton>
+                                <Track.Thumb><Thumb Style="{StaticResource ScrollThumbStyle}" MinHeight="24"/></Track.Thumb>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Style="{StaticResource ScrollNoButton}" Command="ScrollBar.PageDownCommand"/>
+                                </Track.IncreaseRepeatButton>
+                            </Track>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Orientation" Value="Horizontal">
+                                <Setter Property="Width" Value="Auto"/>
+                                <Setter Property="Height" Value="10"/>
+                                <Setter TargetName="PART_Track" Property="MinHeight" Value="0"/>
+                                <Setter TargetName="PART_Track" Property="IsDirectionReversed" Value="False"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ComboToggle" TargetType="ToggleButton">
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="IsTabStop" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="b" CornerRadius="7"
+                                Background="{DynamicResource InputBg}"
+                                BorderBrush="{DynamicResource InputBorder}" BorderThickness="1">
+                            <Grid>
+                                <ContentPresenter Margin="10,0,26,0" VerticalAlignment="Center"/>
+                                <Path x:Name="arrow" Data="M 0 0 L 4 4 L 8 0 Z" Fill="{DynamicResource TextSecondary}"
+                                      HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="b" Property="BorderBrush" Value="{DynamicResource Accent}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="b" Property="BorderBrush" Value="{DynamicResource Accent}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ThemedCombo" TargetType="ComboBox">
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton x:Name="PART_Toggle" Style="{StaticResource ComboToggle}"
+                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                          Content="{TemplateBinding SelectionBoxItem}"
+                                          ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"/>
+                            <Popup IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom"
+                                   AllowsTransparency="True" PopupAnimation="Fade" Focusable="False">
+                                <Border Background="{DynamicResource DropdownBg}" BorderBrush="{DynamicResource CardBorder}"
+                                        BorderThickness="1" CornerRadius="7" Margin="0,4,0,0" Padding="4"
+                                        MinWidth="{TemplateBinding ActualWidth}">
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.3" Color="Black"/>
+                                    </Border.Effect>
+                                    <StackPanel IsItemsHost="True"/>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ThemedComboItem" TargetType="ComboBoxItem">
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+            <Setter Property="Padding" Value="9,7"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="b" Background="Transparent" CornerRadius="5" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="b" Property="Background" Value="{DynamicResource DropdownHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="b" Property="Background" Value="{DynamicResource BtnSecBg}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Border Background="{DynamicResource WinBg}" CornerRadius="12" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
+        <Grid Margin="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" x:Name="TitleBar" Height="48" Background="{DynamicResource DragBarBg}" MouseLeftButtonDown="TitleBar_MouseDown">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
+                    <Image Source="app.png" Width="32" Height="32" VerticalAlignment="Center" Margin="0,0,11,0"
+                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                    <TextBlock VerticalAlignment="Center">
+                        <Run Text="CS2 Region Picker" FontSize="15" FontWeight="Bold"
+                             Foreground="{DynamicResource TextPrimary}"/>
+                        <Run Text=" [1.0.0]" FontSize="10"
+                             Foreground="{DynamicResource TextSecondary}"/>
+                    </TextBlock>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,0">
+                    <Button x:Name="SettingsBtn" Style="{StaticResource BtnSec}" Margin="0,0,8,0"
+                            Content="⚙  Settings" Click="Settings_Click"/>
+                    <Button x:Name="AboutBtn" Style="{StaticResource BtnSec}"
+                            Content="About" Click="About_Click"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
+                    <Button x:Name="MinBtn" Style="{StaticResource ChromeBtn}" Content="—" Click="Min_Click"/>
+                    <Button x:Name="CloseBtn" Style="{StaticResource ChromeBtn}" Content="✕" Click="Close_Click"/>
+                </StackPanel>
+            </Grid>
+
+            <Grid Grid.Row="1" Margin="16,10,16,16">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="150"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" Margin="0,0,0,10" x:Name="FinderRow">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Background="{DynamicResource InputBg}" BorderBrush="{DynamicResource InputBorder}"
+                            BorderThickness="1" CornerRadius="8">
+                        <Grid>
+                            <TextBlock Text="Search region…" Foreground="{DynamicResource TextSecondary}" FontSize="13"
+                                       Margin="12,0,0,0" VerticalAlignment="Center" x:Name="SearchPlaceholder" IsHitTestVisible="False"/>
+                            <TextBox x:Name="SearchBox" Background="Transparent" BorderThickness="0"
+                                     Foreground="{DynamicResource TextPrimary}" CaretBrush="{DynamicResource TextPrimary}"
+                                     Padding="12,10" FontSize="13" TextChanged="SearchBox_TextChanged"
+                                     GotKeyboardFocus="SearchBox_Focus"
+                                     LostKeyboardFocus="SearchBox_LostFocus"
+                                     PreviewMouseLeftButtonDown="SearchBox_Click"/>
+                        </Grid>
+                    </Border>
+
+                    <Button Grid.Column="1" x:Name="AllBtn" Style="{StaticResource BtnSec}" Margin="8,0,0,0"
+                            Content="Mark All" Click="SelectAll_Click"/>
+                    <Button Grid.Column="2" x:Name="NoneBtn" Style="{StaticResource BtnSec}" Margin="8,0,0,0"
+                            Content="UnMark All" Click="SelectNone_Click"/>
+                </Grid>
+
+                <Border Grid.Row="1" Background="{DynamicResource MapSea}" BorderBrush="{DynamicResource CardBorder}"
+                        BorderThickness="1" CornerRadius="10" ClipToBounds="True">
+                    <Grid>
+                        <local:WorldMap x:Name="Map"/>
+
+                        <Border x:Name="AppliedPanel" VerticalAlignment="Top" HorizontalAlignment="Right"
+                                Margin="0,12,12,0" Width="238" CornerRadius="10"
+                                Background="{DynamicResource DropdownBg}" BorderBrush="{DynamicResource CardBorder}"
+                                BorderThickness="1" Padding="12,10">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="14" ShadowDepth="2" Opacity="0.32" Color="Black"/>
+                            </Border.Effect>
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,2">
+                                    <TextBlock x:Name="ActiveTitle" Text="Current Allowed Regions" FontSize="12" FontWeight="Bold"
+                                               Foreground="{DynamicResource TextPrimary}" VerticalAlignment="Center"
+                                               TextWrapping="Wrap"/>
+                                    <Border DockPanel.Dock="Right" HorizontalAlignment="Right" CornerRadius="9"
+                                            Background="{DynamicResource BtnSecBg}" Padding="7,1" VerticalAlignment="Center">
+                                        <TextBlock x:Name="AppliedCount" Text="0" FontSize="11" FontWeight="Bold"
+                                                   Foreground="{DynamicResource Accent}"/>
+                                    </Border>
+                                </DockPanel>
+
+                                <Border Height="1" Background="{DynamicResource CardBorder}" Margin="0,8,0,8"/>
+
+                                <TextBlock x:Name="AppliedEmpty" Text="Nothing Applied Yet — Hit Apply" FontSize="11"
+                                           Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap"/>
+
+                                <ScrollViewer x:Name="AppliedScroll" MaxHeight="180" VerticalScrollBarVisibility="Auto"
+                                              Visibility="Collapsed">
+                                    <ItemsControl x:Name="AppliedList">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <DockPanel Margin="0,2">
+                                                    <TextBlock DockPanel.Dock="Right" Text="{Binding PingText}" FontSize="10.5"
+                                                               FontWeight="SemiBold" Foreground="{Binding PingBrush}"
+                                                               VerticalAlignment="Center" Margin="8,0,0,0"
+                                                               MinWidth="46" TextAlignment="Right"/>
+                                                    <Ellipse DockPanel.Dock="Left" Width="7" Height="7" Margin="0,0,7,0"
+                                                             VerticalAlignment="Center" Fill="{Binding StateBrush}"/>
+                                                    <TextBlock Text="{Binding Desc}" FontSize="11.5"
+                                                               Foreground="{DynamicResource TextPrimary}"
+                                                               VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                                </DockPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </StackPanel>
+                        </Border>
+
+                        <Border x:Name="ResultsPanel" Visibility="Collapsed" VerticalAlignment="Top" HorizontalAlignment="Left"
+                                Background="{DynamicResource DropdownBg}" BorderBrush="{DynamicResource CardBorder}"
+                                BorderThickness="1" CornerRadius="8" Margin="10" MaxHeight="300" Width="380">
+                            <ListBox x:Name="ResultsList" Background="Transparent" BorderThickness="0"
+                                     HorizontalContentAlignment="Stretch"
+                                     Focusable="False"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                        <Setter Property="Padding" Value="12,8"/>
+                                        <Setter Property="Focusable" Value="False"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ListBoxItem">
+                                                    <Border x:Name="bd" Background="Transparent" CornerRadius="5" Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource DropdownHover}"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <DockPanel Cursor="Hand" Background="Transparent" MouseLeftButtonDown="Result_Click" Tag="{Binding}" LastChildFill="True">
+                                            <TextBlock DockPanel.Dock="Right" Text="{Binding PingText}" FontSize="12"
+                                                       FontWeight="SemiBold" Foreground="{Binding PingBrush}" VerticalAlignment="Center"
+                                                       Margin="12,0,0,0" MinWidth="52" TextAlignment="Right"/>
+                                            <TextBlock DockPanel.Dock="Right" Text="{Binding StateText}" FontSize="11"
+                                                       FontWeight="SemiBold" Foreground="{Binding StateBrush}" VerticalAlignment="Center"
+                                                       Margin="10,0,0,0" MinWidth="72" TextAlignment="Right"/>
+                                            <Ellipse DockPanel.Dock="Left" Width="9" Height="9" VerticalAlignment="Center" Margin="0,0,9,0" Fill="{Binding StateBrush}"/>
+                                            <Border DockPanel.Dock="Left" CornerRadius="2" Margin="0,0,8,0"
+                                                    VerticalAlignment="Center" ClipToBounds="True"
+                                                    BorderBrush="{DynamicResource CardBorder}" BorderThickness="0.6">
+                                                <Image Source="{Binding FlagPath}" Width="20" Height="15"
+                                                       Stretch="UniformToFill"
+                                                       RenderOptions.BitmapScalingMode="HighQuality"/>
+                                            </Border>
+                                            <TextBlock Text="{Binding Desc}" FontSize="13" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource TextPrimary}" VerticalAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Row="2" Margin="0,12,0,10" x:Name="ActionRow">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" x:Name="LockBadge" Visibility="Collapsed" HorizontalAlignment="Left"
+                            Background="{DynamicResource BtnSecBg}" CornerRadius="6" Padding="10,6" VerticalAlignment="Center">
+                        <TextBlock x:Name="LockBadgeText" Text="🔒  Working… please wait" FontSize="12" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Warning}"/>
+                    </Border>
+
+                    <Button Grid.Column="2" x:Name="ApplyBtn" Style="{StaticResource BtnPrimary}"
+                            Content="▶  Apply" Click="Apply_Click"/>
+                </Grid>
+
+                <Border Grid.Row="3" Background="{DynamicResource LogBg}" BorderBrush="{DynamicResource CardBorder}"
+                        BorderThickness="1" CornerRadius="10">
+                    <RichTextBox x:Name="LogBox" IsReadOnly="True" IsReadOnlyCaretVisible="True"
+                                 Background="Transparent" BorderThickness="0" Padding="12,8"
+                                 Foreground="{DynamicResource TextPrimary}" FontFamily="Consolas" FontSize="12"
+                                 VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <RichTextBox.Resources>
+                            <Style TargetType="{x:Type Paragraph}">
+                                <Setter Property="Margin" Value="0"/>
+                            </Style>
+                        </RichTextBox.Resources>
+                    </RichTextBox>
+                </Border>
+            </Grid>
+
+            <Border x:Name="SettingsOverlay" Grid.RowSpan="2" Visibility="Collapsed"
+                    Background="#99000000" CornerRadius="12">
+                <Border Width="380" VerticalAlignment="Center" HorizontalAlignment="Center"
+                        Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource CardBorder}"
+                        BorderThickness="1" CornerRadius="12" Padding="24">
+                    <StackPanel>
+                        <DockPanel Margin="0,0,0,18">
+                            <TextBlock x:Name="SettingsTitle" Text="Settings" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextPrimary}"/>
+                            <Button DockPanel.Dock="Right" Style="{StaticResource ChromeBtn}" Content="✕"
+                                    HorizontalAlignment="Right" Click="SettingsClose_Click"/>
+                        </DockPanel>
+
+                        <DockPanel>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock x:Name="ThemeLabel" Text="Appearance" FontSize="13.5" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}"/>
+                                <TextBlock x:Name="ThemeSubLabel" Text="Dark or light theme" FontSize="11.5" Foreground="{DynamicResource TextSecondary}"/>
+                            </StackPanel>
+                            <Border DockPanel.Dock="Right" x:Name="ThemeToggle" Width="60" Height="30" CornerRadius="15"
+                                    Background="{DynamicResource ToggleTrackBg}" Cursor="Hand" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                    MouseLeftButtonDown="ThemeToggle_Click">
+                                <Border x:Name="ThemeKnob" Width="24" Height="24" CornerRadius="12" HorizontalAlignment="Left"
+                                        Background="{DynamicResource ToggleKnobBg}" Margin="3,0,0,0">
+                                    <Border.RenderTransform><TranslateTransform x:Name="ThemeKnobT" X="0"/></Border.RenderTransform>
+                                    <TextBlock x:Name="ThemeKnobIcon" Text="🌙" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </Border>
+                        </DockPanel>
+
+                        <Border Height="1" Background="{DynamicResource CardBorder}" Margin="0,16,0,16"/>
+
+                        <DockPanel>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock x:Name="LangLabel" Text="Language" FontSize="13.5" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimary}"/>
+                                <TextBlock x:Name="LangSubLabel" Text="Interface language" FontSize="11.5"
+                                           Foreground="{DynamicResource TextSecondary}"/>
+                            </StackPanel>
+                            <ComboBox x:Name="LangCombo" DockPanel.Dock="Right" Width="118"
+                                      Style="{StaticResource ThemedCombo}"
+                                      ItemContainerStyle="{StaticResource ThemedComboItem}"
+                                      HorizontalAlignment="Right" VerticalAlignment="Center"
+                                      SelectionChanged="Lang_Changed">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Native}" FontSize="12.5"
+                                                   Foreground="{DynamicResource TextPrimary}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </DockPanel>
+                    </StackPanel>
+                </Border>
+            </Border>
+            <Border x:Name="AboutOverlay" Grid.RowSpan="2" Visibility="Collapsed"
+                    Background="#99000000" CornerRadius="12" MouseLeftButtonDown="AboutOverlay_Click">
+                <Border Width="400" VerticalAlignment="Center" HorizontalAlignment="Center"
+                        Background="{DynamicResource CardBg}" CornerRadius="16"
+                        BorderBrush="{DynamicResource CardBorder}" BorderThickness="1" MouseLeftButtonDown="AboutCard_Click">
+                    <Border.Clip><RectangleGeometry Rect="0,0,400,500" RadiusX="16" RadiusY="16"/></Border.Clip>
+                    <StackPanel>
+
+                        <Grid Height="150">
+                            <Border>
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#2B2F36" Offset="0"/>
+                                        <GradientStop Color="#16181C" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                    <Image Source="app.png" Width="72" Height="72" HorizontalAlignment="Center"
+                                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                                    <TextBlock HorizontalAlignment="Center" FontSize="20" Margin="0,8,0,0">
+                                        <Run Text="CS2 Region " FontWeight="Light" Foreground="White"/><Run Text="Picker" FontWeight="SemiBold" Foreground="White"/>
+                                    </TextBlock>
+                                    <TextBlock Text="Version 1.0.0" HorizontalAlignment="Center" FontSize="11" Foreground="#9AA6B2" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            <Button Width="30" Height="30" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,12,12,0"
+                                    Cursor="Hand" Click="AboutClose_Click" ToolTip="Close">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="b" CornerRadius="8" Background="#26FFFFFF">
+                                            <TextBlock Text="✕" FontSize="12" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="b" Property="Background" Value="#44FFFFFF"/></Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                        </Grid>
+
+                        <StackPanel Margin="0,22,0,0">
+                            <TextBlock x:Name="AboutTitleText" Text="Created By" TextAlignment="Center" FontSize="13" Foreground="{DynamicResource TextSecondary}"/>
+                            <TextBlock Text="GoldKingZ" TextAlignment="Center" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource Accent}" Margin="0,2,0,0"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,18,0,20">
+                            <Button Style="{StaticResource SocialButton}" Click="Discord_Click" ToolTip="Discord">
+                                <Viewbox Width="26" Height="26"><Canvas Width="24" Height="24">
+                                    <Path Fill="#5865F2" Data="M20.317 4.369a19.791 19.791 0 0 0-4.885-1.515 0.074 0.074 0 0 0-0.079 0.037c-0.211 0.375-0.444 0.864-0.608 1.249-1.844-0.276-3.68-0.276-5.486 0-0.164-0.393-0.405-0.874-0.617-1.249a0.077 0.077 0 0 0-0.079-0.037 19.736 19.736 0 0 0-4.885 1.515 0.07 0.07 0 0 0-0.032 0.027C0.533 9.046-0.32 13.58 0.099 18.057a0.082 0.082 0 0 0 0.031 0.057 19.9 19.9 0 0 0 5.993 3.03 0.078 0.078 0 0 0 0.084-0.028c0.462-0.63 0.874-1.295 1.226-1.994a0.076 0.076 0 0 0-0.041-0.106 13.107 13.107 0 0 1-1.872-0.892 0.077 0.077 0 0 1-0.008-0.128 10.2 10.2 0 0 0 0.372-0.292 0.074 0.074 0 0 1 0.077-0.01c3.928 1.793 8.18 1.793 12.062 0a0.074 0.074 0 0 1 0.078 0.009c0.12 0.099 0.245 0.198 0.372 0.293a0.077 0.077 0 0 1-0.006 0.127 12.299 12.299 0 0 1-1.873 0.891 0.077 0.077 0 0 0-0.041 0.107c0.36 0.698 0.772 1.362 1.225 1.993a0.076 0.076 0 0 0 0.084 0.028 19.839 19.839 0 0 0 6.002-3.03 0.077 0.077 0 0 0 0.032-0.054c0.5-5.177-0.838-9.674-3.549-13.66a0.061 0.061 0 0 0-0.031-0.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333 0.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-0.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333 0.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-0.946 2.418-2.157 2.418z"/>
+                                </Canvas></Viewbox>
+                            </Button>
+                            <Button Style="{StaticResource SocialButton}" Click="Github_Click" ToolTip="GitHub">
+                                <Viewbox Width="25" Height="25"><Canvas Width="24" Height="24">
+                                    <Path Fill="{DynamicResource TextPrimary}" Data="M12 0.297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385 0.6 0.113 0.82-0.258 0.82-0.577 0-0.285-0.01-1.04-0.015-2.04-3.338 0.724-4.042-1.61-4.042-1.61-0.546-1.387-1.333-1.756-1.333-1.756-1.089-0.745 0.083-0.729 0.083-0.729 1.205 0.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492 0.997 0.107-0.775 0.418-1.305 0.762-1.604-2.665-0.305-5.467-1.334-5.467-5.931 0-1.311 0.469-2.381 1.236-3.221-0.124-0.303-0.535-1.524 0.117-3.176 0 0 1.008-0.322 3.301 1.23 0.957-0.266 1.983-0.399 3.003-0.404 1.02 0.005 2.047 0.138 3.006 0.404 2.291-1.552 3.297-1.23 3.297-1.23 0.653 1.653 0.242 2.874 0.118 3.176 0.77 0.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921 0.43 0.372 0.823 1.102 0.823 2.222 0 1.606-0.014 2.898-0.014 3.293 0 0.319 0.216 0.694 0.825 0.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </Canvas></Viewbox>
+                            </Button>
+                            <Button Style="{StaticResource SocialButton}" Click="Steam_Click" ToolTip="Steam">
+                                <Viewbox Width="26" Height="26"><Canvas Width="24" Height="24">
+                                    <Path Fill="{DynamicResource TextPrimary}" Data="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.031 4.524 4.527 0 2.497-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.004.105.004.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 15.27C1.862 20.307 6.486 24 11.979 24c6.627 0 11.999-5.373 11.999-12S18.605 0 11.979 0zM7.54 18.21l-1.473-.61c.262.543.714.999 1.314 1.25 1.297.539 2.793-.076 3.332-1.375.263-.63.264-1.319.005-1.949s-.75-1.121-1.377-1.383c-.624-.26-1.29-.249-1.878-.03l1.523.63c.956.4 1.409 1.5 1.009 2.455-.397.957-1.497 1.41-2.454 1.012H7.54zm11.415-9.303c0-1.662-1.353-3.015-3.015-3.015-1.665 0-3.015 1.353-3.015 3.015 0 1.665 1.35 3.015 3.015 3.015 1.663 0 3.015-1.35 3.015-3.015zm-5.273-.005c0-1.252 1.013-2.266 2.265-2.266 1.249 0 2.266 1.014 2.266 2.266 0 1.251-1.017 2.265-2.266 2.265-1.253 0-2.265-1.014-2.265-2.265z"/>
+                                </Canvas></Viewbox>
+                            </Button>
+                            <Button Style="{StaticResource SocialButton}" Click="Kofi_Click" ToolTip="Ko-fi">
+                                <Viewbox Width="27" Height="27"><Canvas Width="24" Height="24">
+                                    <Path Fill="#FF5E5B" Data="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267-.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.011 3.976-4.011 3.976s-.121.119-.31.023c-.076-.057-.108-.09-.108-.09-.443-.441-3.368-3.049-4.034-3.954-.709-.965-1.041-2.7-.091-3.71.951-1.01 3.005-1.086 4.363.407 0 0 1.565-1.782 3.468-.963 1.904.82 1.832 3.011.723 4.311zm6.173.478c-.928.116-1.682.028-1.682.028V7.284h1.77s1.971.551 1.971 2.638c0 1.913-.985 2.667-2.059 3.015z"/>
+                                </Canvas></Viewbox>
+                            </Button>
+                        </StackPanel>
+
+                        <Border Height="1" Background="{DynamicResource CardBorder}"/>
+                        <TextBlock x:Name="AboutBlurb" Margin="26,14,26,18" FontSize="11.5" Foreground="{DynamicResource TextSecondary}"
+                                   TextWrapping="Wrap" TextAlignment="Center" LineHeight="18"
+                                   Text="Blocks Valve SDR Relay IPs So CS2 Matchmaking Skips Regions You Don't Want."/>
+                    </StackPanel>
+                </Border>
+            </Border>
+
+            <Border x:Name="ConfirmOverlay" Grid.RowSpan="2" Visibility="Collapsed"
+                    Background="#99000000" CornerRadius="12">
+                <Border Width="420" VerticalAlignment="Center" HorizontalAlignment="Center"
+                        Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource CardBorder}"
+                        BorderThickness="1" CornerRadius="14" Padding="24">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="24" ShadowDepth="4" Opacity="0.45" Color="Black"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <TextBlock Text="⚠" FontSize="20" Foreground="{DynamicResource Warning}"
+                                       VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBlock x:Name="ConfirmTitle" Text="Warning" FontSize="17" FontWeight="Bold"
+                                       Foreground="{DynamicResource TextPrimary}" VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <TextBlock x:Name="ConfirmMessage" FontSize="12.5" TextWrapping="Wrap" LineHeight="20"
+                                   Foreground="{DynamicResource TextSecondary}" Margin="0,0,0,20"
+                                   Text="Message goes here."/>
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button x:Name="ConfirmNo" Style="{StaticResource BtnSec}" Margin="0,0,10,0"
+                                    Content="Cancel" Click="ConfirmNo_Click"/>
+                            <Button x:Name="ConfirmYes" Style="{StaticResource BtnPrimary}"
+                                    Content="Apply Anyway" Click="ConfirmYes_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Border>
+        </Grid>
+    </Border>
+</Window>
