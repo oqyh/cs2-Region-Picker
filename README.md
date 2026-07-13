@@ -36,6 +36,9 @@ rules automatically. You never have to redo anything.
 
 ## How To Use
 
+<img width="800" height="347" alt="cs2regionwindwos" src="https://github.com/user-attachments/assets/10fc7ee0-0e85-4998-9006-8769eaf24343" />
+
+
 1. Run **CS2RegionPicker.exe** (needs admin — it writes firewall rules).
 2. Click regions on the map to mark them:
    🟢 allowed · 🟣 blocked · 🔵 not applied yet
