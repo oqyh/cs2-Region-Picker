@@ -21,6 +21,8 @@ Block CS2 matchmaking regions you don't want, straight from a world map. Uses Wi
 
 ## How It Works
 
+<img width="800" height="347" alt="cs2regionwindwos" src="https://github.com/user-attachments/assets/10fc7ee0-0e85-4998-9006-8769eaf24343" />
+
 CS2 routes you through **Valve's SDR relays** — servers around the world that act
 as the on-ramps into matchmaking.
 
@@ -35,9 +37,6 @@ rules automatically. You never have to redo anything.
 ---
 
 ## How To Use
-
-<img width="800" height="347" alt="cs2regionwindwos" src="https://github.com/user-attachments/assets/10fc7ee0-0e85-4998-9006-8769eaf24343" />
-
 
 1. Run **CS2RegionPicker.exe** (needs admin — it writes firewall rules).
 2. Click regions on the map to mark them:
