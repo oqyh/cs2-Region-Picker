@@ -81,6 +81,7 @@ not finding a server?
 <summary><b>📋 View Version History</b> (Click to expand 🔽)</summary>
 
 ### [1.0.1]
+- Added Check For Updates In About
 - Region Positions Now Come Directly From Valve's SDR Data, Always Physically Correct (Fix Guam Location)
 - Flags Are Detected Automatically From Real Coordinates, Future Servers Get Located And Flagged Without Updates
 - Added Complete Flag Pack (251 Countries And Territories), Unknown Regions Show A Placeholder Instead Of A Blank
