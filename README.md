@@ -11,7 +11,7 @@
 
 ---
 
-# CS2 Region Picker (1.0.0)
+# CS2 Region Picker (1.0.1)
 
 cs2 Region Picker Block CS2 Matchmaking Regions You Don't Want, Straight From A World Map. By Using Windows Firewall
 
@@ -79,6 +79,19 @@ not finding a server?
 
 <details>
 <summary><b>📋 View Version History</b> (Click to expand 🔽)</summary>
+
+### [1.0.1]
+- Region Positions Now Come Directly From Valve's SDR Data, Always Physically Correct (Fix Guam Location)
+- Flags Are Detected Automatically From Real Coordinates, Future Servers Get Located And Flagged Without Updates
+- Added Complete Flag Pack (251 Countries And Territories), Unknown Regions Show A Placeholder Instead Of A Blank
+- Reworked Map Marks
+- Added Animated Connection Lines To Allowed Regions (Green = Applied, Blue = Pending), No Line For Blocked
+- Marks Keep The Same Size At Every Zoom Level
+- Regions At The Same Location No Longer Overlap, They Spread Apart Automatically
+- Current Allowed Regions Box Can Be Moved And Resized, Double-Click The Header To Reset, Position Is Remembered, Defaults To Bottom-Left
+- Added Russian Language
+- Faster Apply, Instant Mark All / UnMark All, Smoother Window Resizing
+- Code Cleanup And Optimizations
 
 ### [1.0.0]
 - Initial Release
