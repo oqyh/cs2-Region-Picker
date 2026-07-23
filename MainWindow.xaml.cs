@@ -112,6 +112,8 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
+        Updater.CleanupOldVersion();
+
         _isDark = S.DarkMode;
         ThemeManager.Apply(_isDark);
         SyncThemeToggle();
@@ -130,6 +132,70 @@ public partial class MainWindow : Window
         }
 
         InitAppliedPanel();
+    }
+
+    Updater.ReleaseInfo? _pendingUpdate;
+    bool _updateBusy;
+
+    async void Update_Click(object s, RoutedEventArgs e)
+    {
+        if (_updateBusy) return;
+        _updateBusy = true;
+        UpdateBtn.IsEnabled = false;
+
+        try
+        {
+            if (_pendingUpdate == null)
+            {
+                UpdateStatus.Visibility = Visibility.Visible;
+                UpdateStatus.Text = Loc.T("update_checking");
+
+                var info = await Updater.CheckAsync();
+
+                if (info == null)
+                {
+                    UpdateStatus.Text = Loc.T("update_failed", "Unexpected Response");
+                    Updater.OpenReleasesPage();
+                }
+                else if (info.Version <= Updater.Current)
+                {
+                    UpdateStatus.Text = Loc.T("update_uptodate");
+                }
+                else if (info.ExeUrl == null)
+                {
+                    UpdateStatus.Text = Loc.T("update_available", info.Version);
+                    Updater.OpenReleasesPage();
+                }
+                else
+                {
+                    _pendingUpdate = info;
+                    UpdateStatus.Text = Loc.T("update_available", info.Version);
+                    UpdateBtn.Content = Loc.T("update_download", info.Version);
+                }
+            }
+            else
+            {
+                var progress = new Progress<int>(p =>
+                    UpdateStatus.Text = Loc.T("update_downloading", p));
+                UpdateStatus.Visibility = Visibility.Visible;
+                UpdateStatus.Text = Loc.T("update_downloading", 0);
+
+                await Updater.DownloadAndInstallAsync(_pendingUpdate.ExeUrl!, progress,
+                    () => UpdateStatus.Text = Loc.T("update_installing"));
+            }
+        }
+        catch (Exception ex)
+        {
+            UpdateStatus.Visibility = Visibility.Visible;
+            UpdateStatus.Text = Loc.T("update_failed", ex.Message);
+            _pendingUpdate = null;
+            UpdateBtn.Content = Loc.T("update_check");
+        }
+        finally
+        {
+            _updateBusy = false;
+            UpdateBtn.IsEnabled = true;
+        }
     }
 
     bool _panelDrag;
@@ -299,6 +365,21 @@ public partial class MainWindow : Window
         SettingsBtn.Content = Loc.T("settings");
         AboutBtn.Content    = Loc.T("about");
 
+        if (!_updateBusy)
+        {
+            if (_pendingUpdate != null)
+            {
+                UpdateBtn.Content = Loc.T("update_download", _pendingUpdate.Version);
+                UpdateStatus.Text = Loc.T("update_available", _pendingUpdate.Version);
+                UpdateStatus.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                UpdateBtn.Content = Loc.T("update_check");
+                UpdateStatus.Visibility = Visibility.Collapsed;
+            }
+        }
+
         SearchPlaceholder.Text = Loc.T("search_placeholder");
         AllBtn.Content  = Loc.T("mark_all");
         NoneBtn.Content = Loc.T("unmark_all");
@@ -390,7 +471,78 @@ public partial class MainWindow : Window
     protected override async void OnContentRendered(EventArgs e)
     {
         base.OnContentRendered(e);
+        await StartupUpdateCheckAsync();
         await ReloadAsync();
+    }
+
+    async Task StartupUpdateCheckAsync()
+    {
+        Log(Loc.T("log_update_checking"));
+
+        Task<Updater.ReleaseInfo?> check = CheckSafeAsync();
+        Task done = await Task.WhenAny(check, Task.Delay(4000));
+
+        if (done == check)
+        {
+            ApplyUpdateResult(check.Result);
+        }
+        else
+        {
+            _ = check.ContinueWith(
+                t => Dispatcher.Invoke(() => ApplyUpdateResult(t.Result)),
+                TaskScheduler.Default);
+        }
+    }
+
+    static async Task<Updater.ReleaseInfo?> CheckSafeAsync()
+    {
+        try { return await Updater.CheckAsync(); }
+        catch { return null; }
+    }
+
+    void ApplyUpdateResult(Updater.ReleaseInfo? info)
+    {
+        if (info == null)
+        {
+            Log(Loc.T("log_update_failed"), Warn);
+            return;
+        }
+
+        if (info.Version <= Updater.Current)
+        {
+            Log(Loc.T("log_update_latest"), Ok);
+            return;
+        }
+
+        if (info.ExeUrl != null)
+        {
+            _pendingUpdate = info;
+            UpdateBtn.Content = Loc.T("update_download", info.Version);
+            UpdateStatus.Text = Loc.T("update_available", info.Version);
+            UpdateStatus.Visibility = Visibility.Visible;
+        }
+        LogUpdateBanner(info.Version.ToString());
+    }
+
+    void LogUpdateBanner(string ver)
+    {
+        var sep = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4A90A4"));
+        var doc = LogBox.Document;
+
+        void AddLine(string text, Brush brush, bool bold)
+        {
+            var run = new System.Windows.Documents.Run(text) { Foreground = brush };
+            if (bold) run.FontWeight = FontWeights.Bold;
+            doc.Blocks.Add(new System.Windows.Documents.Paragraph(run) { Margin = new Thickness(0) });
+        }
+
+        AddLine("", sep, false);
+        AddLine("╔═══════════════════════════════════════════════╗", sep, false);
+        AddLine("   🚀  " + Loc.T("update_available", ver), Ok, true);
+        AddLine("   ⬇  " + Loc.T("update_banner_how"), Warn, false);
+        AddLine("╚═══════════════════════════════════════════════╝", sep, false);
+        AddLine("", sep, false);
+        LogBox.ScrollToEnd();
     }
 
     async Task ReloadAsync()

@@ -71,7 +71,6 @@ public static class Loc
             ["language"]          = "Language",
             ["language_sub"]      = "Interface language",
 
-            ["about_title"]       = "About",
             ["created_by"]        = "Created By",
             ["about_blurb"]       = "Blocks Valve SDR Relay IPs So CS2 Matchmaking Skips Regions You Don't Want.",
 
@@ -92,6 +91,19 @@ public static class Loc
             ["log_located"]       = "Located {0} new region(s) on the map.",
             ["log_unlocated"]     = "⚠ {0} region(s) have no map position yet: {1} — will retry via IP lookup.",
             ["log_can_exit"]      = "✓ Done. You can close the app — the block stays active.",
+
+            ["update_check"]       = "Check For Updates",
+            ["update_checking"]    = "Checking…",
+            ["update_uptodate"]    = "✓ You Are On The Latest Version",
+            ["update_available"]   = "New Version {0} Available!",
+            ["update_download"]    = "⬇ Download & Open {0}",
+            ["update_downloading"] = "Downloading… {0}%",
+            ["update_installing"]  = "Opening New Version… (Windows Will Ask For Admin Permission As Usual)",
+            ["update_failed"]      = "Update Failed: {0}",
+            ["update_banner_how"]  = "How To Update:  Open About  →  Download & Open",
+            ["log_update_checking"] = "Checking for updates…",
+            ["log_update_latest"]   = "✓ You are on the latest version.",
+            ["log_update_failed"]   = "⚠ Update check failed — will try again next launch.",
         },
 
         ["ar"] = new()
@@ -126,7 +138,6 @@ public static class Loc
             ["language"]          = "اللغة",
             ["language_sub"]      = "لغة الواجهة",
 
-            ["about_title"]       = "حول",
             ["created_by"]        = "من إنشاء",
             ["about_blurb"]       = "يحظر عناوين IP الخاصة بمرحّلات Valve SDR، فتتجاوز مطابقة CS2 المناطق التي لا تريدها.",
 
@@ -147,6 +158,19 @@ public static class Loc
             ["log_located"]       = "تم تحديد موقع {0} منطقة جديدة على الخريطة.",
             ["log_unlocated"]     = "⚠ {0} منطقة (مناطق) بلا موقع على الخريطة بعد: {1} — سيُعاد البحث عبر عنوان IP.",
             ["log_can_exit"]      = "✓ تم. يمكنك إغلاق التطبيق — سيبقى الحظر فعّالًا.",
+
+            ["update_check"]       = "التحقق من التحديثات",
+            ["update_checking"]    = "جارٍ التحقق…",
+            ["update_uptodate"]    = "✓ أنت على أحدث إصدار",
+            ["update_available"]   = "يتوفر إصدار جديد {0}!",
+            ["update_download"]    = "⬇ تنزيل وفتح {0}",
+            ["update_downloading"] = "جارٍ التنزيل… {0}%",
+            ["update_installing"]  = "جارٍ فتح الإصدار الجديد… (سيطلب Windows صلاحية المسؤول كالمعتاد)",
+            ["update_failed"]      = "فشل التحديث: {0}",
+            ["update_banner_how"]  = "طريقة التحديث:  افتح «حول»  ←  «تنزيل وفتح»",
+            ["log_update_checking"] = "جارٍ التحقق من التحديثات…",
+            ["log_update_latest"]   = "✓ أنت على أحدث إصدار.",
+            ["log_update_failed"]   = "⚠ فشل التحقق من التحديثات — ستُعاد المحاولة عند التشغيل القادم.",
         },
 
         ["ru"] = new()
@@ -181,7 +205,6 @@ public static class Loc
             ["language"]          = "Язык",
             ["language_sub"]      = "Язык интерфейса",
 
-            ["about_title"]       = "О программе",
             ["created_by"]        = "Автор",
             ["about_blurb"]       = "Блокирует IP-адреса ретрансляторов Valve SDR, чтобы подбор матчей CS2 пропускал ненужные вам регионы.",
 
@@ -202,6 +225,19 @@ public static class Loc
             ["log_located"]       = "Определено местоположение новых регионов на карте: {0}.",
             ["log_unlocated"]     = "⚠ Регионов без позиции на карте: {0} ({1}) — будет повторная попытка через IP.",
             ["log_can_exit"]      = "✓ Готово. Можно закрыть приложение — блокировка останется активной.",
+
+            ["update_check"]       = "Проверить обновления",
+            ["update_checking"]    = "Проверка…",
+            ["update_uptodate"]    = "✓ У вас последняя версия",
+            ["update_available"]   = "Доступна новая версия {0}!",
+            ["update_download"]    = "⬇ Скачать и открыть {0}",
+            ["update_downloading"] = "Загрузка… {0}%",
+            ["update_installing"]  = "Открытие новой версии… (Windows запросит права администратора, как обычно)",
+            ["update_failed"]      = "Ошибка обновления: {0}",
+            ["update_banner_how"]  = "Как обновить:  Откройте «О программе»  →  «Скачать и открыть»",
+            ["log_update_checking"] = "Проверка обновлений…",
+            ["log_update_latest"]   = "✓ У вас последняя версия.",
+            ["log_update_failed"]   = "⚠ Не удалось проверить обновления — попробуем при следующем запуске.",
         },
     };
 }
