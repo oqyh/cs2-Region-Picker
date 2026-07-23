@@ -10,6 +10,7 @@ public static class Loc
     {
         new Language("en", "English", false),
         new Language("ar", "العربية", true),
+        new Language("ru", "Русский", false),
 
     };
 
@@ -89,6 +90,7 @@ public static class Loc
             ["log_maxping_hint"]  = "   Your slowest allowed region is ~{0} ms — if max ping is set below that, matchmaking will never find a server.",
             ["log_maxping_none"]  = "Important: set  mm_dedicated_search_maxping  high enough to reach your allowed regions, or matchmaking will find nothing.",
             ["log_located"]       = "Located {0} new region(s) on the map.",
+            ["log_unlocated"]     = "⚠ {0} region(s) have no map position yet: {1} — will retry via IP lookup.",
             ["log_can_exit"]      = "✓ Done. You can close the app — the block stays active.",
         },
 
@@ -143,7 +145,63 @@ public static class Loc
             ["log_maxping_hint"]  = "   أبطأ منطقة مسموحة لديك نحو {0} ms — إذا ضبطت الحد الأقصى أقل من ذلك، فلن تعثر المطابقة على أي خادم.",
             ["log_maxping_none"]  = "مهم: اضبط  mm_dedicated_search_maxping  على قيمة تكفي للوصول إلى مناطقك المسموحة، وإلا فلن تعثر المطابقة على أي خادم.",
             ["log_located"]       = "تم تحديد موقع {0} منطقة جديدة على الخريطة.",
+            ["log_unlocated"]     = "⚠ {0} منطقة (مناطق) بلا موقع على الخريطة بعد: {1} — سيُعاد البحث عبر عنوان IP.",
             ["log_can_exit"]      = "✓ تم. يمكنك إغلاق التطبيق — سيبقى الحظر فعّالًا.",
+        },
+
+        ["ru"] = new()
+        {
+            ["settings"]          = "⚙  Настройки",
+            ["about"]             = "О программе",
+            ["you"]               = "ВЫ",
+
+            ["search_placeholder"] = "Поиск региона…",
+            ["mark_all"]          = "Выбрать все",
+            ["unmark_all"]        = "Снять выбор",
+
+            ["apply"]             = "▶  Применить",
+            ["working"]           = "⏳  Выполняется…",
+            ["busy_badge"]        = "🔒  Выполняется… подождите",
+
+            ["active_regions"]    = "Текущие разрешённые регионы",
+
+            ["confirm_all_blocked_title"] = "Все регионы заблокированы",
+            ["confirm_all_blocked_msg"]   = "Вы заблокировали все регионы, поэтому подбор матчей CS2 вообще не сможет подключиться ни к одному серверу. Применить всё равно?",
+            ["confirm_apply_anyway"]      = "Применить всё равно",
+            ["confirm_cancel"]            = "Отмена",
+            ["nothing_applied"]   = "Пока ничего не применено — нажмите «Применить»",
+
+            ["state_allowed"]     = "разрешён",
+            ["state_blocked"]     = "заблокирован",
+            ["state_pending"]     = "не применён",
+
+            ["settings_title"]    = "Настройки",
+            ["appearance"]        = "Оформление",
+            ["appearance_sub"]    = "Тёмная или светлая тема",
+            ["language"]          = "Язык",
+            ["language_sub"]      = "Язык интерфейса",
+
+            ["about_title"]       = "О программе",
+            ["created_by"]        = "Автор",
+            ["about_blurb"]       = "Блокирует IP-адреса ретрансляторов Valve SDR, чтобы подбор матчей CS2 пропускал ненужные вам регионы.",
+
+            ["log_fetching"]      = "Получение списка ретрансляторов от Valve…",
+            ["log_loaded"]        = "Загружено регионов: {0}.",
+            ["log_data_changed"]  = "Данные ретрансляторов Valve изменились — повторно применяется ваш сохранённый выбор…",
+            ["log_error"]         = "Ошибка: {0}",
+            ["log_fw_error"]      = "Ошибка брандмауэра: {0}",
+            ["log_applying"]      = "Применяется блокировка: {0} регион(ов)…",
+            ["log_applied"]       = "Блокировка применена. Регионов: {0}, IP-адресов: {1}.",
+            ["log_verifying"]     = "Проверка правил брандмауэра…",
+            ["log_verify_ok"]     = "✓ Проверено: активно {0} из {1} правил блокировки.",
+            ["log_verify_fail"]   = "⚠ Создано только {0} из {1} правил блокировки. Что-то мешает их созданию.\n   Решение: отключите брандмауэр антивируса и нажмите «Применить» ещё раз.",
+            ["log_not_enforced"]  = "⚠ Правила созданы, но заблокированные регионы ВСЁ ЕЩЁ доступны — ваш антивирус подменяет брандмауэр Windows и игнорирует эти правила.\n   Решение: отключите модуль брандмауэра в антивирусе (не весь антивирус) и нажмите «Применить» ещё раз.",
+            ["log_maxping"]       = "Важно: в консоли CS2 выполните команду ",
+            ["log_maxping_hint"]  = "   Самый медленный разрешённый регион — около {0} мс; если максимальный пинг задан ниже, подбор матчей не найдёт ни одного сервера.",
+            ["log_maxping_none"]  = "Важно: задайте  mm_dedicated_search_maxping  достаточно высоким, чтобы доставать до разрешённых регионов, иначе подбор матчей ничего не найдёт.",
+            ["log_located"]       = "Определено местоположение новых регионов на карте: {0}.",
+            ["log_unlocated"]     = "⚠ Регионов без позиции на карте: {0} ({1}) — будет повторная попытка через IP.",
+            ["log_can_exit"]      = "✓ Готово. Можно закрыть приложение — блокировка останется активной.",
         },
     };
 }

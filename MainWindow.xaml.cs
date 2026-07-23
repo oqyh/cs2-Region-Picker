@@ -28,9 +28,9 @@ public partial class MainWindow : Window
         public string CountryCode => Flags.Country(PrimaryCode) ?? "";
         public bool HasCountry => !string.IsNullOrEmpty(CountryCode);
 
-        public string FlagPath => HasCountry
+        public string? FlagPath => HasCountry
             ? $"pack://application:,,,/flags/{CountryCode.ToLowerInvariant()}.png"
-            : "";
+            : null;
 
         public (double Lat, double Lon)? Coord { get; set; }
 
@@ -74,19 +74,15 @@ public partial class MainWindow : Window
             private set { _pingText = value; Notify(nameof(PingText)); Notify(nameof(PingBrush)); Notify(nameof(StateBrush)); }
         }
 
-        public Brush PingBrush
-        {
-            get
-            {
-                if (PingText.EndsWith("ms") && int.TryParse(PingText.Replace(" ms", ""), out int ms))
-                    return ms < 70 ? Good : ms < 140 ? Medium : Bad;
-                return Muted;
-            }
-        }
+        public Brush PingBrush =>
+            PingMs is int ms ? (ms < 70 ? Good : ms < 140 ? Medium : Bad) : Muted;
 
         public void SetPingPending() => PingText = "…";
 
         public void SetPingResult(int ms) => PingText = ms < 0 ? "timeout" : ms + " ms";
+
+        public int? PingMs =>
+            PingText.EndsWith("ms") && int.TryParse(PingText.Replace(" ms", ""), out int ms) ? ms : null;
 
         void Notify(string n) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -124,6 +120,140 @@ public partial class MainWindow : Window
 
         Map.SetHome(24.45, 54.38);
         Map.PopClicked += OnMapPopClicked;
+
+        var v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+        if (v != null)
+        {
+            string ver = v.Major + "." + v.Minor + "." + v.Build;
+            TitleVersion.Text = " [" + ver + "]";
+            AboutVersion.Text = "Version " + ver;
+        }
+
+        InitAppliedPanel();
+    }
+
+    bool _panelDrag;
+    Point _panelDragStart;
+    double _panelStartX, _panelStartY;
+
+    bool _panelResizing;
+    Point _panelResizeStart;
+    double _panelStartW, _panelStartH;
+
+    void InitAppliedPanel()
+    {
+        if (S.PanelW >= 170) AppliedPanel.Width = S.PanelW;
+        if (S.PanelH >= 60)  AppliedScroll.MaxHeight = S.PanelH;
+
+        MapHost.SizeChanged += (_, _) => ClampPanel();
+        AppliedPanel.SizeChanged += (_, _) => ClampPanel();
+
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            if (S.PanelX >= 0 && S.PanelY >= 0)
+            {
+                PanelPos.X = S.PanelX;
+                PanelPos.Y = S.PanelY;
+            }
+            else
+            {
+                ResetPanelPosition();
+            }
+            ClampPanel();
+        }), System.Windows.Threading.DispatcherPriority.Loaded);
+    }
+
+    void ResetPanelPosition()
+    {
+
+        PanelPos.X = 12;
+        PanelPos.Y = Math.Max(0, MapHost.ActualHeight - AppliedPanel.ActualHeight - 12);
+    }
+
+    void PanelDrag_Down(object s, MouseButtonEventArgs e)
+    {
+        if (e.ClickCount == 2)
+        {
+
+            AppliedPanel.Width = 238;
+            AppliedScroll.MaxHeight = 180;
+            AppliedPanel.UpdateLayout();
+            ResetPanelPosition();
+            SavePanel();
+            e.Handled = true;
+            return;
+        }
+
+        _panelDrag = true;
+        _panelDragStart = e.GetPosition(MapHost);
+        _panelStartX = PanelPos.X;
+        _panelStartY = PanelPos.Y;
+        ((UIElement)s).CaptureMouse();
+        e.Handled = true;
+    }
+
+    void PanelDrag_Move(object s, MouseEventArgs e)
+    {
+        if (!_panelDrag) return;
+        Point p = e.GetPosition(MapHost);
+        PanelPos.X = _panelStartX + (p.X - _panelDragStart.X);
+        PanelPos.Y = _panelStartY + (p.Y - _panelDragStart.Y);
+        ClampPanel();
+    }
+
+    void PanelDrag_Up(object s, MouseButtonEventArgs e)
+    {
+        if (!_panelDrag) return;
+        _panelDrag = false;
+        ((UIElement)s).ReleaseMouseCapture();
+        SavePanel();
+        e.Handled = true;
+    }
+
+    void PanelResize_Down(object s, MouseButtonEventArgs e)
+    {
+        _panelResizing = true;
+        _panelResizeStart = e.GetPosition(MapHost);
+        _panelStartW = AppliedPanel.ActualWidth;
+        _panelStartH = AppliedScroll.MaxHeight;
+        ((UIElement)s).CaptureMouse();
+        e.Handled = true;
+    }
+
+    void PanelResize_Move(object s, MouseEventArgs e)
+    {
+        if (!_panelResizing) return;
+        Point p = e.GetPosition(MapHost);
+        AppliedPanel.Width      = Math.Max(170, Math.Min(480, _panelStartW + (p.X - _panelResizeStart.X)));
+        AppliedScroll.MaxHeight = Math.Max(60,  Math.Min(560, _panelStartH + (p.Y - _panelResizeStart.Y)));
+    }
+
+    void PanelResize_Up(object s, MouseButtonEventArgs e)
+    {
+        if (!_panelResizing) return;
+        _panelResizing = false;
+        ((UIElement)s).ReleaseMouseCapture();
+        AppliedPanel.UpdateLayout();
+        ClampPanel();
+        SavePanel();
+        e.Handled = true;
+    }
+
+    void ClampPanel()
+    {
+        if (MapHost.ActualWidth < 50 || MapHost.ActualHeight < 50) return;
+        double w = AppliedPanel.ActualWidth, h = AppliedPanel.ActualHeight;
+        PanelPos.X = Math.Max(0, Math.Min(Math.Max(0, MapHost.ActualWidth - w), PanelPos.X));
+        PanelPos.Y = Math.Max(0, Math.Min(Math.Max(0, MapHost.ActualHeight - h), PanelPos.Y));
+    }
+
+    void SavePanel()
+    {
+        S.PanelX = PanelPos.X;
+        S.PanelY = PanelPos.Y;
+        S.PanelW = AppliedPanel.ActualWidth;
+        S.PanelH = AppliedScroll.MaxHeight;
+        S.Save();
     }
 
     void TitleBar_MouseDown(object s, MouseButtonEventArgs e) { if (e.ButtonState == MouseButtonState.Pressed) DragMove(); }
@@ -240,9 +370,9 @@ public partial class MainWindow : Window
         if (Map == null) return;
         Brush good = Hex("#A3BE8C"), medium = Hex("#EBCB8B"), bad = Hex("#BF616A");
         if (_isDark)
-            Map.SetTheme(Hex("#17212B"), Hex("#2E3B48"), Hex("#3B4B5E"), Hex("#88C0D0"), Hex("#EBCB8B"), good, medium, bad, Hex("#3B4B5E"));
+            Map.SetTheme(Hex("#17212B"), Hex("#2E3B48"), Hex("#3B4B5E"), Hex("#88C0D0"), Hex("#EBCB8B"), good, medium, bad);
         else
-            Map.SetTheme(Hex("#DCE7F2"), Hex("#B9CADD"), Hex("#A9BAD0"), Hex("#DD7878"), Hex("#DF8E1D"), good, medium, bad, Hex("#CAD6E4"));
+            Map.SetTheme(Hex("#DCE7F2"), Hex("#B9CADD"), Hex("#A9BAD0"), Hex("#DD7878"), Hex("#DF8E1D"), good, medium, bad);
 
         if (_isDark)
             Map.SetInfoColors(Hex("#263340"), Hex("#D8DEE9"), Hex("#81A1C1"));
@@ -250,7 +380,12 @@ public partial class MainWindow : Window
             Map.SetInfoColors(Hex("#FFFFFF"), Hex("#2E3440"), Hex("#5C6470"));
     }
 
-    static Brush Hex(string h) => new SolidColorBrush((Color)ColorConverter.ConvertFromString(h));
+    static Brush Hex(string h)
+    {
+        var b = new SolidColorBrush((Color)ColorConverter.ConvertFromString(h));
+        b.Freeze();
+        return b;
+    }
 
     protected override async void OnContentRendered(EventArgs e)
     {
@@ -267,7 +402,12 @@ public partial class MainWindow : Window
             var blocked = await Firewall.GetBlockedPopsAsync();
 
             var pops = raw.GroupBy(p => p.Desc, StringComparer.OrdinalIgnoreCase)
-                .Select(g => new PopItem { Desc = g.Key, SubPops = g.Select(p => (p.Code, p.Ips)).ToList() })
+                .Select(g => new PopItem
+                {
+                    Desc = g.Key,
+                    SubPops = g.Select(p => (p.Code, p.Ips)).ToList(),
+                    Coord = g.Select(p => p.Geo).FirstOrDefault(x => x != null)
+                })
                 .ToList();
 
             foreach (var pop in pops)
@@ -286,14 +426,28 @@ public partial class MainWindow : Window
             _pops.Clear();
             _pops.AddRange(pops.OrderBy(p => p.Desc, StringComparer.OrdinalIgnoreCase));
             foreach (var pop in _pops)
-                pop.PropertyChanged += (_, a) => { if (a.PropertyName == nameof(PopItem.IsAllowed)) { Map.SetPops(_pops); RefreshAppliedPanel(); } };
+                pop.PropertyChanged += (_, a) => { if (a.PropertyName == nameof(PopItem.IsAllowed)) ScheduleUiSync(); };
 
             foreach (var pop in _pops)
-                pop.Coord = PopGeo.Lookup(pop.PrimaryCode);
+            {
+                if (pop.Coord == null)
+                {
+
+                    var g = PopGeo.PositionFromCache(pop.PrimaryCode, S.GeoCache);
+                    if (g != null) pop.Coord = (g.Value.Lat, g.Value.Lon);
+                }
+                else
+                {
+
+                    PopGeo.CountryFromCache(pop.PrimaryCode, pop.Coord.Value.Lat, pop.Coord.Value.Lon, S.GeoCache);
+                }
+            }
 
             Map.SetPops(_pops);
             RefreshAppliedPanel();
             Log(Loc.T("log_loaded", _pops.Count));
+
+            _ = ResolveGeoAsync();
 
             _pingVersion++;
             _ = PingAllAsync(_pingVersion);
@@ -308,10 +462,10 @@ public partial class MainWindow : Window
         catch (Exception ex) { Log(Loc.T("log_error", ex.Message), Err); }
     }
 
-    static async Task<List<(string Code, string Desc, List<string> Ips)>> FetchPopsAsync()
+    static async Task<List<(string Code, string Desc, List<string> Ips, (double Lat, double Lon)? Geo)>> FetchPopsAsync()
     {
         string json = await Http.GetStringAsync(SdrUrl);
-        var result = new List<(string, string, List<string>)>();
+        var result = new List<(string, string, List<string>, (double, double)?)>();
         using var doc = JsonDocument.Parse(json);
         if (!doc.RootElement.TryGetProperty("pops", out var pops)) throw new Exception("Unexpected SDR response.");
         foreach (var pop in pops.EnumerateObject())
@@ -326,7 +480,20 @@ public partial class MainWindow : Window
                     }
             if (ips.Count == 0) continue;
             string desc = pop.Value.TryGetProperty("desc", out var d) && d.ValueKind == JsonValueKind.String ? d.GetString() ?? pop.Name : pop.Name;
-            result.Add((pop.Name, desc, ips));
+
+            (double, double)? geo = null;
+            if (pop.Value.TryGetProperty("geo", out var g) && g.ValueKind == JsonValueKind.Array && g.GetArrayLength() >= 2)
+            {
+                try
+                {
+                    double a = g[0].GetDouble(), b = g[1].GetDouble();
+
+                    geo = Math.Abs(b) <= 90 ? (b, a) : (a, b);
+                }
+                catch { }
+            }
+
+            result.Add((pop.Name, desc, ips, geo));
         }
         if (result.Count == 0) throw new Exception("SDR response had no relays.");
         return result;
@@ -351,7 +518,7 @@ public partial class MainWindow : Window
                 RefreshAppliedPanel();
             });
 
-            _ = ResolveUnknownCoordsAsync();
+            _ = ResolveGeoAsync();
         }
     }
 
@@ -410,7 +577,6 @@ public partial class MainWindow : Window
         if (((FrameworkElement)s).Tag is PopItem pop)
         {
             pop.IsAllowed = !pop.IsAllowed;
-            Map.SetPops(_pops);
             ResultsList.Items.Refresh();
         }
     }
@@ -418,11 +584,25 @@ public partial class MainWindow : Window
     void OnMapPopClicked(PopItem pop)
     {
         pop.IsAllowed = !pop.IsAllowed;
-        Map.SetPops(_pops);
     }
 
-    void SelectAll_Click(object s, RoutedEventArgs e) { foreach (var p in _pops) p.IsAllowed = true; Map.SetPops(_pops); RefreshAppliedPanel(); }
-    void SelectNone_Click(object s, RoutedEventArgs e) { foreach (var p in _pops) p.IsAllowed = false; Map.SetPops(_pops); RefreshAppliedPanel(); }
+    void SelectAll_Click(object s, RoutedEventArgs e) { foreach (var p in _pops) p.IsAllowed = true; }
+    void SelectNone_Click(object s, RoutedEventArgs e) { foreach (var p in _pops) p.IsAllowed = false; }
+
+    bool _uiSyncQueued;
+    void ScheduleUiSync()
+    {
+        if (_uiSyncQueued) return;
+        _uiSyncQueued = true;
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            _uiSyncQueued = false;
+            Map.SetPops(_pops);
+            RefreshAppliedPanel();
+            if (ResultsPanel.Visibility == Visibility.Visible)
+                ResultsList.Items.Refresh();
+        }), System.Windows.Threading.DispatcherPriority.Render);
+    }
 
     async void Apply_Click(object s, RoutedEventArgs e)
     {
@@ -469,7 +649,6 @@ public partial class MainWindow : Window
         Log(Loc.T("log_applying", blockedPops.Count));
         try
         {
-            await Firewall.ClearAsync();
 
             var rules = blockedPops.SelectMany(p => p.SubPops).Select(sp => (sp.Code, sp.Ips)).ToList();
             await Firewall.ApplyAsync(rules);
@@ -503,8 +682,8 @@ public partial class MainWindow : Window
     int WorstAllowedPing()
     {
         var allowedPings = _pops
-            .Where(p => p.IsAllowed && p.PingText.EndsWith("ms"))
-            .Select(p => int.TryParse(p.PingText.Replace(" ms", ""), out int ms) ? ms : -1)
+            .Where(p => p.IsAllowed)
+            .Select(p => p.PingMs ?? -1)
             .Where(ms => ms > 0)
             .ToList();
 
@@ -599,28 +778,53 @@ public partial class MainWindow : Window
         catch { return false; }
     }
 
-    async Task ResolveUnknownCoordsAsync()
-    {
-        var unknown = _pops.Where(p => p.Coord == null).ToList();
-        if (unknown.Count == 0) return;
+    bool _resolvingGeo;
 
-        bool any = false;
-        foreach (var pop in unknown)
+    async Task ResolveGeoAsync()
+    {
+        if (_resolvingGeo) return;
+        _resolvingGeo = true;
+        try
         {
-            var coord = await PopGeo.ResolveAsync(pop.PrimaryCode, pop.AllIps, S.GeoCache);
-            if (coord != null)
+            bool changed = false;
+
+            var unknown = _pops.Where(p => p.Coord == null).ToList();
+            foreach (var pop in unknown)
             {
-                pop.Coord = coord;
-                any = true;
+                var geo = await PopGeo.ResolvePositionAsync(pop.PrimaryCode, pop.AllIps, S.GeoCache);
+                if (geo != null)
+                {
+                    pop.Coord = (geo.Value.Lat, geo.Value.Lon);
+                    changed = true;
+                }
+            }
+
+            if (unknown.Any(p => p.Coord != null))
+                Log(Loc.T("log_located", unknown.Count(p => p.Coord != null)));
+
+            var still = unknown.Where(p => p.Coord == null).Select(p => p.CodeText).ToList();
+            if (still.Count > 0)
+                Log(Loc.T("log_unlocated", still.Count, string.Join(", ", still)), Warn);
+
+            foreach (var pop in _pops)
+            {
+                if (pop.Coord == null || pop.HasCountry) continue;
+                string? cc = await PopGeo.ResolveCountryAsync(
+                    pop.PrimaryCode, pop.Coord.Value.Lat, pop.Coord.Value.Lon, pop.AllIps, S.GeoCache);
+                if (cc != null) changed = true;
+            }
+
+            if (changed)
+            {
+                S.Save();
+                Dispatcher.Invoke(() =>
+                {
+                    Map.SetPops(_pops);
+                    ResultsList.Items.Refresh();
+                });
             }
         }
-
-        if (any)
-        {
-            S.Save();
-            Dispatcher.Invoke(() => Map.SetPops(_pops));
-            Log(Loc.T("log_located", unknown.Count(p => p.Coord != null)));
-        }
+        finally { _resolvingGeo = false; }
     }
 
     void RefreshAppliedPanel()
@@ -639,10 +843,7 @@ public partial class MainWindow : Window
         AppliedEmpty.Visibility  = any ? Visibility.Collapsed : Visibility.Visible;
     }
 
-    static int PingSortKey(PopItem p)
-        => p.PingText.EndsWith("ms") && int.TryParse(p.PingText.Replace(" ms", ""), out int ms)
-            ? ms
-            : int.MaxValue;
+    static int PingSortKey(PopItem p) => p.PingMs ?? int.MaxValue;
 
     static string Fingerprint(List<PopItem> pops)
     {
@@ -680,8 +881,15 @@ public partial class MainWindow : Window
             if (color != null) run.Foreground = color;
             var para = new System.Windows.Documents.Paragraph(run) { Margin = new Thickness(0) };
             LogBox.Document.Blocks.Add(para);
+            TrimLog();
             LogBox.ScrollToEnd();
         });
+    }
+
+    void TrimLog()
+    {
+        while (LogBox.Document.Blocks.Count > 300)
+            LogBox.Document.Blocks.Remove(LogBox.Document.Blocks.FirstBlock);
     }
 
     void LogCommand(string msg, string command, Brush? color = null)
@@ -701,10 +909,10 @@ public partial class MainWindow : Window
             para.Inlines.Add(head);
             para.Inlines.Add(cmd);
             LogBox.Document.Blocks.Add(para);
+            TrimLog();
             LogBox.ScrollToEnd();
         });
     }
 
-    static readonly Brush CommandBrush =
-        new SolidColorBrush((Color)ColorConverter.ConvertFromString("#B48EAD"));
+    static readonly Brush CommandBrush = Hex("#B48EAD");
 }

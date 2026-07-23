@@ -81,18 +81,6 @@ public static class Firewall
         }
     }
 
-    public static async Task ClearAsync()
-    {
-        string script =
-            "Get-NetFirewallRule -DisplayName '" + RulePrefix + "*' -ErrorAction SilentlyContinue | Remove-NetFirewallRule";
-
-        (int exitCode, string output) = await RunPowerShellAsync(script);
-        if (exitCode != 0)
-        {
-            throw new Exception("PowerShell exited with code " + exitCode + ": " + Truncate(output, 400));
-        }
-    }
-
     public static async Task<(int Found, int Expected)> VerifyRulesAsync(List<string> blockedCodes)
     {
         if (blockedCodes.Count == 0) return (0, 0);
@@ -121,91 +109,6 @@ public static class Firewall
             "Get-NetFirewallRule -DisplayName '" + SelfTestRuleName + "' -ErrorAction SilentlyContinue | Remove-NetFirewallRule");
     }
 
-    public static async Task<string?> GetActiveThirdPartyFirewallAsync()
-    {
-        string script =
-            "Get-CimInstance -Namespace root/SecurityCenter2 -ClassName FirewallProduct -ErrorAction SilentlyContinue | " +
-            "ForEach-Object { \"$($_.displayName)|$($_.productState)\" }";
-
-        (int exitCode, string output) = await RunPowerShellAsync(script);
-
-        foreach (string line in output.Split('\n'))
-        {
-            string[] parts = line.Trim().Split('|');
-            if (parts.Length != 2)
-            {
-                continue;
-            }
-
-            string name = parts[0].Trim();
-            if (name.Length == 0 || name.Contains("Windows", StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
-            if (int.TryParse(parts[1].Trim(), out int state) && ((state >> 8) & 0xFF) >= 0x10)
-            {
-                return name;
-            }
-        }
-
-        return null;
-    }
-
-    public static async Task ApplyRoutesAsync(List<string> ips)
-    {
-        var sb = new StringBuilder();
-        foreach (string ip in ips)
-        {
-            string safeIp = Sanitize(ip);
-            sb.AppendLine("route delete " + safeIp + " > $null 2>&1");
-            sb.AppendLine("route -p add " + safeIp + " mask 255.255.255.255 127.0.0.1 metric 1 > $null 2>&1");
-        }
-
-        (int exitCode, string output) = await RunPowerShellAsync(sb.ToString());
-        if (exitCode != 0)
-        {
-            throw new Exception("PowerShell exited with code " + exitCode + ": " + Truncate(output, 400));
-        }
-    }
-
-    public static async Task ClearRoutesAsync(IEnumerable<string> ips)
-    {
-        var sb = new StringBuilder();
-        foreach (string ip in ips.Distinct())
-        {
-            sb.AppendLine("route delete " + Sanitize(ip) + " > $null 2>&1");
-        }
-
-        if (sb.Length == 0)
-        {
-            return;
-        }
-
-        await RunPowerShellAsync(sb.ToString());
-    }
-
-    public static async Task<HashSet<string>> GetNullRoutedIpsAsync()
-    {
-        string script =
-            "Get-NetRoute -ErrorAction SilentlyContinue | " +
-            "Where-Object { $_.NextHop -eq '127.0.0.1' -and $_.DestinationPrefix -like '*/32' } | " +
-            "ForEach-Object { $_.DestinationPrefix }";
-
-        (int exitCode, string output) = await RunPowerShellAsync(script);
-
-        var ips = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach (string line in output.Split('\n'))
-        {
-            string prefix = line.Trim();
-            if (prefix.EndsWith("/32"))
-            {
-                ips.Add(prefix.Substring(0, prefix.Length - 3));
-            }
-        }
-        return ips;
-    }
-
     private static async Task<(int ExitCode, string Output)> RunPowerShellAsync(string script)
     {
         string file = Path.Combine(Path.GetTempPath(), "cs2regionpicker_" + Guid.NewGuid().ToString("N") + ".ps1");
@@ -225,11 +128,11 @@ public static class Firewall
 
             using Process process = Process.Start(psi) ?? throw new Exception("Failed to start powershell.exe");
 
-            string stdout = await process.StandardOutput.ReadToEndAsync();
-            string stderr = await process.StandardError.ReadToEndAsync();
+            Task<string> stdoutTask = process.StandardOutput.ReadToEndAsync();
+            Task<string> stderrTask = process.StandardError.ReadToEndAsync();
             await process.WaitForExitAsync();
 
-            return (process.ExitCode, stdout + stderr);
+            return (process.ExitCode, await stdoutTask + await stderrTask);
         }
         finally
         {

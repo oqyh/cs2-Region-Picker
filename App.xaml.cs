@@ -28,6 +28,11 @@ public class AppSettings
 
     public Dictionary<string, string> GeoCache { get; set; } = new();
 
+    public double PanelX { get; set; } = -1;
+    public double PanelY { get; set; } = -1;
+    public double PanelW { get; set; } = 238;
+    public double PanelH { get; set; } = 180;
+
     static string Folder => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "CS2RegionPicker");
@@ -91,6 +96,10 @@ public static class ThemeManager
     {
         var r = Application.Current.Resources;
         foreach (var (key, darkHex, lightHex) in Palette)
-            r[key] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(dark ? darkHex : lightHex));
+        {
+            var b = new SolidColorBrush((Color)ColorConverter.ConvertFromString(dark ? darkHex : lightHex));
+            b.Freeze();
+            r[key] = b;
+        }
     }
 }

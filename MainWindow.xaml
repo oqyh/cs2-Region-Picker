@@ -268,7 +268,7 @@
                     <TextBlock VerticalAlignment="Center">
                         <Run Text="CS2 Region Picker" FontSize="15" FontWeight="Bold"
                              Foreground="{DynamicResource TextPrimary}"/>
-                        <Run Text=" [1.0.0]" FontSize="10"
+                        <Run x:Name="TitleVersion" Text=" [1.0.1]" FontSize="10"
                              Foreground="{DynamicResource TextSecondary}"/>
                     </TextBlock>
                 </StackPanel>
@@ -323,54 +323,70 @@
 
                 <Border Grid.Row="1" Background="{DynamicResource MapSea}" BorderBrush="{DynamicResource CardBorder}"
                         BorderThickness="1" CornerRadius="10" ClipToBounds="True">
-                    <Grid>
+                    <Grid x:Name="MapHost">
                         <local:WorldMap x:Name="Map"/>
 
-                        <Border x:Name="AppliedPanel" VerticalAlignment="Top" HorizontalAlignment="Right"
-                                Margin="0,12,12,0" Width="238" CornerRadius="10"
+                        <Border x:Name="AppliedPanel" VerticalAlignment="Top" HorizontalAlignment="Left"
+                                Width="238" CornerRadius="10"
                                 Background="{DynamicResource DropdownBg}" BorderBrush="{DynamicResource CardBorder}"
                                 BorderThickness="1" Padding="12,10">
+                            <Border.RenderTransform>
+                                <TranslateTransform x:Name="PanelPos"/>
+                            </Border.RenderTransform>
                             <Border.Effect>
                                 <DropShadowEffect BlurRadius="14" ShadowDepth="2" Opacity="0.32" Color="Black"/>
                             </Border.Effect>
-                            <StackPanel>
-                                <DockPanel Margin="0,0,0,2">
-                                    <TextBlock x:Name="ActiveTitle" Text="Current Allowed Regions" FontSize="12" FontWeight="Bold"
-                                               Foreground="{DynamicResource TextPrimary}" VerticalAlignment="Center"
-                                               TextWrapping="Wrap"/>
-                                    <Border DockPanel.Dock="Right" HorizontalAlignment="Right" CornerRadius="9"
-                                            Background="{DynamicResource BtnSecBg}" Padding="7,1" VerticalAlignment="Center">
-                                        <TextBlock x:Name="AppliedCount" Text="0" FontSize="11" FontWeight="Bold"
-                                                   Foreground="{DynamicResource Accent}"/>
-                                    </Border>
-                                </DockPanel>
+                            <Grid>
+                                <StackPanel>
+                                    <DockPanel Margin="0,0,0,2" x:Name="AppliedHeader" Background="Transparent" Cursor="SizeAll"
+                                               ToolTip="Drag to move · double-click to reset"
+                                               MouseLeftButtonDown="PanelDrag_Down" MouseMove="PanelDrag_Move" MouseLeftButtonUp="PanelDrag_Up">
+                                        <TextBlock DockPanel.Dock="Left" Text="⠿" FontSize="12" Margin="0,0,7,0"
+                                                   Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center"/>
+                                        <Border DockPanel.Dock="Right" HorizontalAlignment="Right" CornerRadius="9"
+                                                Background="{DynamicResource BtnSecBg}" Padding="7,1" VerticalAlignment="Center">
+                                            <TextBlock x:Name="AppliedCount" Text="0" FontSize="11" FontWeight="Bold"
+                                                       Foreground="{DynamicResource Accent}"/>
+                                        </Border>
+                                        <TextBlock x:Name="ActiveTitle" Text="Current Allowed Regions" FontSize="12" FontWeight="Bold"
+                                                   Foreground="{DynamicResource TextPrimary}" VerticalAlignment="Center"
+                                                   TextWrapping="Wrap"/>
+                                    </DockPanel>
 
-                                <Border Height="1" Background="{DynamicResource CardBorder}" Margin="0,8,0,8"/>
+                                    <Border Height="1" Background="{DynamicResource CardBorder}" Margin="0,8,0,8"/>
 
-                                <TextBlock x:Name="AppliedEmpty" Text="Nothing Applied Yet — Hit Apply" FontSize="11"
-                                           Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap"/>
+                                    <TextBlock x:Name="AppliedEmpty" Text="Nothing Applied Yet — Hit Apply" FontSize="11"
+                                               Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap"/>
 
-                                <ScrollViewer x:Name="AppliedScroll" MaxHeight="180" VerticalScrollBarVisibility="Auto"
-                                              Visibility="Collapsed">
-                                    <ItemsControl x:Name="AppliedList">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <DockPanel Margin="0,2">
-                                                    <TextBlock DockPanel.Dock="Right" Text="{Binding PingText}" FontSize="10.5"
-                                                               FontWeight="SemiBold" Foreground="{Binding PingBrush}"
-                                                               VerticalAlignment="Center" Margin="8,0,0,0"
-                                                               MinWidth="46" TextAlignment="Right"/>
-                                                    <Ellipse DockPanel.Dock="Left" Width="7" Height="7" Margin="0,0,7,0"
-                                                             VerticalAlignment="Center" Fill="{Binding StateBrush}"/>
-                                                    <TextBlock Text="{Binding Desc}" FontSize="11.5"
-                                                               Foreground="{DynamicResource TextPrimary}"
-                                                               VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                                                </DockPanel>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </ScrollViewer>
-                            </StackPanel>
+                                    <ScrollViewer x:Name="AppliedScroll" MaxHeight="180" VerticalScrollBarVisibility="Auto"
+                                                  Visibility="Collapsed">
+                                        <ItemsControl x:Name="AppliedList">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <DockPanel Margin="0,2">
+                                                        <TextBlock DockPanel.Dock="Right" Text="{Binding PingText}" FontSize="10.5"
+                                                                   FontWeight="SemiBold" Foreground="{Binding PingBrush}"
+                                                                   VerticalAlignment="Center" Margin="8,0,0,0"
+                                                                   MinWidth="46" TextAlignment="Right"/>
+                                                        <Ellipse DockPanel.Dock="Left" Width="7" Height="7" Margin="0,0,7,0"
+                                                                 VerticalAlignment="Center" Fill="{Binding StateBrush}"/>
+                                                        <TextBlock Text="{Binding Desc}" FontSize="11.5"
+                                                                   Foreground="{DynamicResource TextPrimary}"
+                                                                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                                    </DockPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                </StackPanel>
+
+                                <TextBlock x:Name="AppliedGrip" Text="◢" FontSize="11" Padding="6,4,2,0"
+                                           HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                                           Margin="0,6,-8,-8" Cursor="SizeNWSE" Background="Transparent"
+                                           Foreground="{DynamicResource TextSecondary}"
+                                           ToolTip="Drag to resize"
+                                           MouseLeftButtonDown="PanelResize_Down" MouseMove="PanelResize_Move" MouseLeftButtonUp="PanelResize_Up"/>
+                            </Grid>
                         </Border>
 
                         <Border x:Name="ResultsPanel" Visibility="Collapsed" VerticalAlignment="Top" HorizontalAlignment="Left"
@@ -414,9 +430,25 @@
                                             <Border DockPanel.Dock="Left" CornerRadius="2" Margin="0,0,8,0"
                                                     VerticalAlignment="Center" ClipToBounds="True"
                                                     BorderBrush="{DynamicResource CardBorder}" BorderThickness="0.6">
-                                                <Image Source="{Binding FlagPath}" Width="20" Height="15"
-                                                       Stretch="UniformToFill"
-                                                       RenderOptions.BitmapScalingMode="HighQuality"/>
+                                                <Grid Width="20" Height="15">
+                                                    <TextBlock Text="🌐" FontSize="11" HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"
+                                                               Foreground="{DynamicResource TextSecondary}"/>
+                                                    <Image Width="20" Height="15" Stretch="UniformToFill"
+                                                           RenderOptions.BitmapScalingMode="HighQuality">
+                                                        <Image.Style>
+                                                            <Style TargetType="Image">
+                                                                <Setter Property="Source" Value="{Binding FlagPath}"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding HasCountry}" Value="False">
+                                                                        <Setter Property="Source" Value="{x:Null}"/>
+                                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Image.Style>
+                                                    </Image>
+                                                </Grid>
                                             </Border>
                                             <TextBlock Text="{Binding Desc}" FontSize="13" FontWeight="SemiBold"
                                                        Foreground="{DynamicResource TextPrimary}" VerticalAlignment="Center"
@@ -536,7 +568,7 @@
                                     <TextBlock HorizontalAlignment="Center" FontSize="20" Margin="0,8,0,0">
                                         <Run Text="CS2 Region " FontWeight="Light" Foreground="White"/><Run Text="Picker" FontWeight="SemiBold" Foreground="White"/>
                                     </TextBlock>
-                                    <TextBlock Text="Version 1.0.0" HorizontalAlignment="Center" FontSize="11" Foreground="#9AA6B2" Margin="0,2,0,0"/>
+                                    <TextBlock x:Name="AboutVersion" Text="Version 1.0.1" HorizontalAlignment="Center" FontSize="11" Foreground="#9AA6B2" Margin="0,2,0,0"/>
                                 </StackPanel>
                             </Border>
                             <Button Width="30" Height="30" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,12,12,0"

@@ -2,10 +2,9 @@
 setlocal
 set "PROJECT=CS2RegionPicker.csproj"
 set "BASE=%~dp0release"
-set "SINGLE=%BASE%\CS2RegionPicker_Portable"
-set "FOLDER=%BASE%\CS2RegionPicker"
+set "SINGLE=%BASE%\CS2RegionPicker"
 echo.
-echo === CS2RegionPicker build (both variants) ===
+echo === CS2RegionPicker build ===
 echo.
 echo Stopping any running CS2RegionPicker...
 taskkill /IM CS2RegionPicker.exe /F >nul 2>&1
@@ -14,17 +13,12 @@ if exist "bin" rmdir /s /q "bin"
 if exist "obj" rmdir /s /q "obj"
 if exist "%BASE%" rmdir /s /q "%BASE%"
 echo.
-echo === [1/2] Portable build (single file) ===
+echo === Building ===
 dotnet publish "%PROJECT%" -c Release -o "%SINGLE%" -p:PublishSingleFile=true
 if errorlevel 1 goto fail
 echo.
-echo === [2/2] Folder build (exe + dlls) ===
-dotnet publish "%PROJECT%" -c Release -o "%FOLDER%" -p:PublishSingleFile=false
-if errorlevel 1 goto fail
-echo.
 echo === DONE ===
-echo Portable  : %SINGLE%\CS2RegionPicker.exe
-echo With dlls : %FOLDER%\CS2RegionPicker.exe (+ dlls)
+echo Output : %SINGLE%\CS2RegionPicker.exe
 echo.
 explorer "%BASE%"
 pause
